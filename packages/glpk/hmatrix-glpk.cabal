@@ -13,7 +13,7 @@ Description:
 Category:           Math
 tested-with:        GHC ==7.8
 
-cabal-version:      >=1.6
+cabal-version:      >=1.8
 build-type:         Simple
 
 extra-source-files:     examples/simplex1.hs
@@ -44,6 +44,36 @@ library
         include-dirs: /usr/local/include/
         if arch(i386)
             cc-options: -arch i386
+
+Test-Suite test-simplex1
+    type:       exitcode-stdio-1.0
+    main-is:    examples/simplex1.hs
+    build-depends: base, hmatrix-glpk
+
+Test-Suite test-simplex2
+    type:       exitcode-stdio-1.0
+    main-is:    examples/simplex2.hs
+    build-depends: base, hmatrix-glpk
+
+Test-Suite test-simplex3
+    type:       exitcode-stdio-1.0
+    main-is:    examples/simplex3.hs
+    build-depends: base, hmatrix-glpk
+
+Test-Suite test-simplex4
+    type:       exitcode-stdio-1.0
+    main-is:    examples/simplex4.hs
+    build-depends: base, hmatrix-glpk
+
+Test-Suite test-simplex5
+    type:       exitcode-stdio-1.0
+    main-is:    examples/simplex5.hs
+    build-depends: base, hmatrix-glpk
+
+Test-Suite test-simplex6
+    type:       exitcode-stdio-1.0
+    main-is:    examples/simplex6.hs
+    build-depends: base, hmatrix-glpk, hmatrix
 
 source-repository head
     type:     git

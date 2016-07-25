@@ -14,7 +14,7 @@ bnds = [ 1 :>=: 0
        , 3 :>=: 0 ]
 
 main = do
-    print $ simplex objFun constr []
-    print $ simplex objFun constr bnds
-    print $ simplex objFun constr [Free 3]
-    print $ simplex objFun constr [ 2 :<=: 50 ]
+    print =<< simplex objFun constr []
+    print =<< simplex objFun constr bnds
+    print =<< simplex objFun constr [Free 3]
+    print =<< simplex objFun constr [ 2 :<=: 50 ]

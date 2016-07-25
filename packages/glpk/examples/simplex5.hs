@@ -23,5 +23,5 @@ constr1 = [[1 # i | i <- [1..n]] :==: 1] ++
            :<=: (sigma * (foldr (+) 0 (map size_fun [1..k]))) | k <- [1..n]]
 
 main = do
-  print $ simplex prob (General constr1) bnds -- NoFeasible
-  print $ exact   prob (General constr1) bnds -- solution found
+  print =<< simplex prob (General constr1) bnds -- NoFeasible
+  print =<< exact   prob (General constr1) bnds -- solution found

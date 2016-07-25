@@ -21,5 +21,5 @@ bounds = [ 1 :&: (0,200)
          , 4 :&: (100,700)
          , 5 :&: (0,1500) ]
 
-main = print $ simplex prob constr bounds
+main = print =<< simplex prob constr bounds
 

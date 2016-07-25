@@ -15,9 +15,9 @@ constr3 = General [ [1#1, 1#1, 1#2] :<=: 10
                   ]
 
 main = do
-    print $ simplex prob constr1 []
-    print $ simplex prob constr2 []
-    print $ simplex prob constr3 []
-    print $ simplex prob constr2 [ 2 :>=: 1, 3 :&: (2,7)]
-    print $ simplex prob constr2 [ Free 2 ]
+    print =<< simplex prob constr1 []
+    print =<< simplex prob constr2 []
+    print =<< simplex prob constr3 []
+    print =<< simplex prob constr2 [ 2 :>=: 1, 3 :&: (2,7)]
+    print =<< simplex prob constr2 [ Free 2 ]
 

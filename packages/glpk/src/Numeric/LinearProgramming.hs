@@ -88,7 +88,6 @@ module Numeric.LinearProgramming(
 import Numeric.LinearAlgebra.HMatrix
 import Numeric.LinearAlgebra.Devel hiding (Dense)
 import Foreign(Ptr)
-import System.IO.Unsafe(unsafePerformIO)
 import Foreign.C.Types
 import Data.List((\\),sortBy,nub)
 import Data.Function(on)
@@ -137,40 +136,40 @@ sparseOfGeneral (General cs) =
                       withObj bl (Map.foldrWithKey' (\t c l -> (c#t) : l) [] cl_unique)) cs
 sparseOfGeneral _ = error "sparseOfGeneral: a general system of constraints was expected"
 
-simplex :: Optimization -> Constraints -> Bounds -> Solution
+simplex :: Optimization -> Constraints -> Bounds -> IO Solution
 
 simplex opt (Dense   []) bnds = simplex opt (Sparse []) bnds
 simplex opt (Sparse  []) bnds = simplex opt (Sparse [Free [0#1]]) bnds
 simplex opt (General []) bnds = simplex opt (Sparse [Free [0#1]]) bnds
 
-simplex opt (Dense constr) bnds = extract sg sol where
-    sol = simplexSparse m n (mkConstrD sz objfun constr) (mkBounds sz constr bnds)
-    n = length objfun
-    m = length constr
-    (sz, sg, objfun) = adapt opt
+simplex opt (Dense constr) bnds = extract sg <$> sol where
+  n = length objfun
+  m = length constr
+  (sz, sg, objfun) = adapt opt
+  sol = simplexSparse m n (mkConstrD sz objfun constr) (mkBounds sz constr bnds)      
 
-simplex opt (Sparse constr) bnds = extract sg sol where
-    sol = simplexSparse m n (mkConstrS sz objfun constr) (mkBounds sz constr bnds)
-    n = length objfun
-    m = length constr
-    (sz, sg, objfun) = adapt opt
+simplex opt (Sparse constr) bnds = extract sg <$> sol where
+  n = length objfun
+  m = length constr
+  (sz, sg, objfun) = adapt opt
+  sol = simplexSparse m n (mkConstrS sz objfun constr) (mkBounds sz constr bnds)
 
 simplex opt constr@(General _) bnds = simplex opt (sparseOfGeneral constr) bnds
 
 -- | Simplex method with exact internal arithmetic. See glp_exact in glpk documentation for more information.
-exact :: Optimization -> Constraints -> Bounds -> Solution
+exact :: Optimization -> Constraints -> Bounds -> IO Solution
 
 exact opt (Dense   []) bnds = exact opt (Sparse []) bnds
 exact opt (Sparse  []) bnds = exact opt (Sparse [Free [0#1]]) bnds
 exact opt (General []) bnds = exact opt (Sparse [Free [0#1]]) bnds
 
-exact opt (Dense constr) bnds = extract sg sol where
+exact opt (Dense constr) bnds = extract sg <$> sol where
     sol = exactSparse m n (mkConstrD sz objfun constr) (mkBounds sz constr bnds)
     n = length objfun
     m = length constr
     (sz, sg, objfun) = adapt opt
 
-exact opt (Sparse constr) bnds = extract sg sol where
+exact opt (Sparse constr) bnds = extract sg <$> sol where
     sol = exactSparse m n (mkConstrS sz objfun constr) (mkBounds sz constr bnds)
     n = length objfun
     m = length constr
@@ -287,8 +286,8 @@ foreign import ccall unsafe "c_simplex_sparse" c_simplex_sparse
     -> CInt -> Ptr Double            -- result
     -> IO CInt                       -- exit code
 
-simplexSparse :: Int -> Int -> Matrix Double -> Matrix Double -> Vector Double
-simplexSparse m n c b = unsafePerformIO $ do
+simplexSparse :: Int -> Int -> Matrix Double -> Matrix Double -> IO (Vector Double)
+simplexSparse m n c b = do
     s <- createVector (2+n)
     c_simplex_sparse (fi m) (fi n) ## (cmat c) ## (cmat b) ## s #|"c_simplex_sparse"
     return s
@@ -300,8 +299,8 @@ foreign import ccall unsafe "c_exact_sparse" c_exact_sparse
     -> CInt -> Ptr Double            -- result
     -> IO CInt                       -- exit code
 
-exactSparse :: Int -> Int -> Matrix Double -> Matrix Double -> Vector Double
-exactSparse m n c b = unsafePerformIO $ do
+exactSparse :: Int -> Int -> Matrix Double -> Matrix Double -> IO (Vector Double)
+exactSparse m n c b = do
     s <- createVector (2+n)
     c_exact_sparse (fi m) (fi n) ## (cmat c) ## (cmat b) ## s #|"c_exact_sparse"
     return s
